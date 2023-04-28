@@ -10,7 +10,7 @@
   
   <BasePolicy>
     <TenantId>your-qa-tenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
+    <PolicyId>B2C_1A_{Settings:TrustFrameworkLocalizationPolicyId}</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
 

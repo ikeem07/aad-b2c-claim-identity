@@ -10,7 +10,7 @@
 
   <BasePolicy>
     <TenantId>your-test-tenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
+    <PolicyId>B2C_1A_{Settings:TrustFrameworkBasePolicyId}</PolicyId>
   </BasePolicy>
 
   <BuildingBlocks>

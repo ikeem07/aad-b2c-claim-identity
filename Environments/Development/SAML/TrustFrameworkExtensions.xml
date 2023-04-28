@@ -10,7 +10,7 @@
   
   <BasePolicy>
     <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
+    <PolicyId>B2C_1A_IDENTITY-TRUSTFRAMEWORKLOCALIZATION</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
 

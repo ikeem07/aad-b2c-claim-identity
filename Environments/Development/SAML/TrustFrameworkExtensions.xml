@@ -71,6 +71,7 @@
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="email" />
+            <OutputClaim ClaimTypeReferenceId="objectId" />
             <OutputClaim ClaimTypeReferenceId="userFound" />
           </OutputClaims>
           <ValidationTechnicalProfiles>

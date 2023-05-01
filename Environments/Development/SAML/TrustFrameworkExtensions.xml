@@ -13,12 +13,15 @@
     <PolicyId>B2C_1A_IDENTITY-TRUSTFRAMEWORKLOCALIZATION</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
-
+    <ClaimsSchema>
+      <ClaimType Id="mergeAccount">
+        <DisplayName>Merge Account</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>
+    </ClaimsSchema>
   </BuildingBlocks>
 
   <ClaimsProviders>
-
-
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
       <TechnicalProfiles>
@@ -34,11 +37,73 @@
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
+    <ClaimsProvider>
+      <DisplayName>Local Account</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SelfAsserted-Email">
+          <DisplayName>Email Address</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted.email</Item>
+            <Item Key="language.button_continue">Continue</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+          </InputClaims>
+          <PersistedClaims>
+            <PersistedClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" />
+          </PersistedClaims>
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="AAD-CheckIfUserExists" />
+          </ValidationTechnicalProfiles>
+        </TechnicalProfile>
 
+        <TechnicalProfile Id="AAD-CheckIfUserExists">
+          <DisplayName>Check if the user exists in Azure Active Directory</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="Operation">Read</Item>
+            <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
+          </Metadata>
+          <IncludeInSso>false</IncludeInSso>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" />
+            <OutputClaim ClaimTypeReferenceId="mergeAccount" />
+          </OutputClaims>
+          <!--<IncludeTechnicalProfile>Base-AAD-CheckIfUserExists</IncludeTechnicalProfile>-->
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
   </ClaimsProviders>
 
-    <!--UserJourneys>
-	
-	</UserJourneys-->
+  <UserJourneys>
+    <UserJourney Id="SignUpSignInOrClaim">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <!--<Preconditions>
+            <Precondition Type="ClaimIsNullOrEmpty" ExecuteActionsIf="false">
+              <Parameters>
+                <Parameter Id="ClaimReferenceId">email</Parameter>
+              </Parameters>
+              <Actions>
+                <Action Type="Cancel" />
+              </Actions>
+            </Precondition>
+          </Preconditions>-->
+          <ClaimsExchanges>
+            <ClaimsExchange Id="EmailExchange" TechnicalProfileReferenceId="SelfAsserted-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+	</UserJourneys>
 
 </TrustFrameworkPolicy>

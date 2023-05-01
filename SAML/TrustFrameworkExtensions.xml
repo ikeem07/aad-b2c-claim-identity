@@ -18,6 +18,10 @@
         <DisplayName>Merge Account</DisplayName>
         <DataType>boolean</DataType>
       </ClaimType>
+      <ClaimType Id="userFound">
+        <DisplayName>Merge Account</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>
     </ClaimsSchema>
   </BuildingBlocks>
 
@@ -41,43 +45,55 @@
       <DisplayName>Local Account</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="SelfAsserted-Email">
-          <DisplayName>Email Address</DisplayName>
+          <DisplayName>Email and Password</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
-            <Item Key="ContentDefinitionReferenceId">api.selfasserted.email</Item>
-            <Item Key="language.button_continue">Continue</Item>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
           </Metadata>
-          <CryptographicKeys>
-            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
-          </CryptographicKeys>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+            <InputClaim ClaimTypeReferenceId="email" />
           </InputClaims>
-          <PersistedClaims>
-            <PersistedClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" />
-          </PersistedClaims>
-          <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="AAD-CheckIfUserExists" />
-          </ValidationTechnicalProfiles>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="email" Required="true" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
 
-        <TechnicalProfile Id="AAD-CheckIfUserExists">
-          <DisplayName>Check if the user exists in Azure Active Directory</DisplayName>
+        <TechnicalProfile Id="SelfAsserted-CheckIfUserExists">
+          <DisplayName>Check if User Exists</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="email" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="email" />
+            <OutputClaim ClaimTypeReferenceId="userFound" />
+          </OutputClaims>
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress" />
+          </ValidationTechnicalProfiles>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+
+        <TechnicalProfile Id="AAD-UserReadUsingEmailAddress">
+          <DisplayName>Read User using Email Address</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="Operation">Read</Item>
             <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
+            <Item Key="EntityReferenceId">User</Item>
+            <Item Key="UseClaimsInTokens">false</Item>
           </Metadata>
-          <IncludeInSso>false</IncludeInSso>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="objectId" />
-            <OutputClaim ClaimTypeReferenceId="mergeAccount" />
+            <OutputClaim ClaimTypeReferenceId="userFound" DefaultValue="true" AlwaysUseDefaultValue="true" />
           </OutputClaims>
-          <!--<IncludeTechnicalProfile>Base-AAD-CheckIfUserExists</IncludeTechnicalProfile>-->
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
@@ -86,22 +102,31 @@
   <UserJourneys>
     <UserJourney Id="SignUpSignInOrClaim">
       <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="ClaimsExchange">
-          <!--<Preconditions>
-            <Precondition Type="ClaimIsNullOrEmpty" ExecuteActionsIf="false">
-              <Parameters>
-                <Parameter Id="ClaimReferenceId">email</Parameter>
-              </Parameters>
-              <Actions>
-                <Action Type="Cancel" />
-              </Actions>
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>{OIDC:LoginHint}</Value>
+              <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
-          </Preconditions>-->
+          </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="EmailExchange" TechnicalProfileReferenceId="SelfAsserted-Email" />
           </ClaimsExchanges>
         </OrchestrationStep>
-        <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+
+        <!-- Check if the user exists -->
+        <OrchestrationStep  Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+              <Value>{OIDC:LoginHint}</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="CheckIfUserExistsExchange" TechnicalProfileReferenceId="SelfAsserted-CheckIfUserExists" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
 	</UserJourneys>

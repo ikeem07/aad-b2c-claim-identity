@@ -6,7 +6,7 @@
   PolicySchemaVersion="0.3.0.0"
   TenantId="{Settings:Tenant}"
   PolicyId="B2C_1A_IDENTITY-signup_signin"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_IDENTITY-signup_signin">
+  PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_IDENTITY-signup_signin">
 
   <BasePolicy>
     <TenantId>{Settings:Tenant}</TenantId>

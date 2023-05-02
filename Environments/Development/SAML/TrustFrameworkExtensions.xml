@@ -18,9 +18,11 @@
         <DisplayName>Merge Account</DisplayName>
         <DataType>boolean</DataType>
       </ClaimType>
-      <ClaimType Id="userFound">
-        <DisplayName>Merge Account</DisplayName>
+      <ClaimType Id="migrationRequired">
+        <DisplayName>migrationRequired</DisplayName>
         <DataType>boolean</DataType>
+        <AdminHelpText>Admin help text for migrationRequired</AdminHelpText>
+        <UserHelpText>User help text for migrationRequired</UserHelpText>
       </ClaimType>
     </ClaimsSchema>
 
@@ -54,9 +56,9 @@
         <TechnicalProfile Id="AAD-Common">
           <Metadata>
             <!--Insert b2c-extensions-app application ID here, for example: 11111111-1111-1111-1111-111111111111-->  
-            <Item Key="0a5b76b3-1649-4dfd-9d82-ec47e0c02485"></Item>
+            <Item Key="ClientId">0a5b76b3-1649-4dfd-9d82-ec47e0c02485</Item>
             <!--Insert b2c-extensions-app application ObjectId here, for example: 22222222-2222-2222-2222-222222222222-->
-            <Item Key="f44b58da-c08d-4f90-8ef9-552967bff5cb"></Item>
+            <Item Key="ApplicationObjectId">f44b58da-c08d-4f90-8ef9-552967bff5cb</Item>
           </Metadata>
         </TechnicalProfile>
       </TechnicalProfiles> 
@@ -81,32 +83,6 @@
     <ClaimsProvider>
       <DisplayName>Local Account</DisplayName>
       <TechnicalProfiles>
-        <!-- <TechnicalProfile Id="SelfAsserted-Email">
-          <DisplayName>Email and Password</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="SignUpTarget">SignUpWithLogonEmailExchange</Item>
-            <Item Key="setting.operatingMode">Email</Item>
-            <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
-            <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
-          </Metadata>
-          <IncludeInSso>false</IncludeInSso>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="signInName" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" />
-          </InputClaims>
-          <OutputClaims>
-
-            <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
-            <OutputClaim ClaimTypeReferenceId="password" Required="true" />
-            <OutputClaim ClaimTypeReferenceId="objectId" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource" />
-          </OutputClaims>
-          <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="login-NonInteractive" />
-          </ValidationTechnicalProfiles>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-        </TechnicalProfile> -->
-
         <TechnicalProfile Id="SelfAsserted-EmailValidation">
           <DisplayName>Validate Email</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -122,21 +98,18 @@
           </OutputClaims>
         </TechnicalProfile>
 
-        <TechnicalProfile Id="AAD-UserReadUsingEmailAddress">
-          <DisplayName>Read profile by email address</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryB2CProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <TechnicalProfile Id="AAD-UserReadUsingLocalAccountEmail">
           <Metadata>
             <Item Key="Operation">Read</Item>
             <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
-            <Item Key="EntityReferenceId">User</Item>
-            <Item Key="UseClaimsInTokens">false</Item>
           </Metadata>
-          <IncludeInSso>false</IncludeInSso>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="objectId" />
+            <!-- Required claims -->
+            <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="objectId" />
+            <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="false" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
@@ -170,7 +143,7 @@
         </OrchestrationStep>
 
         <!-- Perform email validation -->
-        <!-- <OrchestrationStep  Order="2" Type="ClaimsExchange">
+        <OrchestrationStep  Order="3" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -178,11 +151,11 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="CheckIfUserExistsExchange" TechnicalProfileReferenceId="SelfAsserted-CheckIfUserExists" />
+            <ClaimsExchange Id="UserReadUsingLocalAccountEmailExchange" TechnicalProfileReferenceId="AAD-UserReadUsingLocalAccountEmail" />
           </ClaimsExchanges>
-        </OrchestrationStep> -->
+        </OrchestrationStep>
 
-        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
 	</UserJourneys>

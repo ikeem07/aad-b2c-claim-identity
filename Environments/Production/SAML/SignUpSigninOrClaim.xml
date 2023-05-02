@@ -16,17 +16,17 @@
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SignUpSignInOrClaim" />
     <UserJourneyBehaviors>
-      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="85bbbb9a-0090-44b9-95a1-e32fdb79fa06" DeveloperMode="true" ClientEnabled="true" ServerEnabled="true" TelemetryVersion="1.0.0" />
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="85bbbb9a-0090-44b9-95a1-e32fdb79fa06" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
       <ScriptExecution>Allow</ScriptExecution>
     </UserJourneyBehaviors>
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="signInName" />
+        <OutputClaim ClaimTypeReferenceId="email" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="NoObjectID"/>
+        <OutputClaim ClaimTypeReferenceId="migrationRequired" />
         <!-- <OutputClaim ClaimTypeReferenceId="mergeAccount" /> -->
-        <OutputClaim ClaimTypeReferenceId="userFound" />
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />

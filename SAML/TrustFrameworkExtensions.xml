@@ -24,6 +24,12 @@
         <AdminHelpText>Admin help text for migrationRequired</AdminHelpText>
         <UserHelpText>User help text for migrationRequired</UserHelpText>
       </ClaimType>
+      <ClaimType Id="claimAccountObjectId">
+        <DisplayName>User's Object ID</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Admin help text for claimAccountObjectId</AdminHelpText>
+        <UserHelpText>User help text for claimAccountObjectId</UserHelpText>
+      </ClaimType>
     </ClaimsSchema>
 
     <ContentDefinitions>
@@ -108,7 +114,7 @@
           </InputClaims>
           <OutputClaims>
             <!-- Required claims -->
-            <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="objectId" />
+            <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" PartnerClaimType="objectId" />
             <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="false" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />

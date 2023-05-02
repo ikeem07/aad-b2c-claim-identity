@@ -25,6 +25,7 @@
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="email" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="NoObjectID"/>
+        <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
         <OutputClaim ClaimTypeReferenceId="migrationRequired" />
         <!-- <OutputClaim ClaimTypeReferenceId="mergeAccount" /> -->
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />

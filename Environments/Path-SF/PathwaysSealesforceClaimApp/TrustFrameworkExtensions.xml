@@ -49,6 +49,12 @@
         <UserHelpText>Email address to use for strong authentication.</UserHelpText>
         <UserInputType>TextBox</UserInputType>
       </ClaimType>
+      <ClaimType Id="canCreateAccount">
+        <DisplayName>Can Create Account</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>Used to determine if a user has the ability to create an account</AdminHelpText>
+        <UserHelpText>User help text for canCreateAccount</UserHelpText>
+      </ClaimType>
     </ClaimsSchema>
 
     <ClaimsTransformations>

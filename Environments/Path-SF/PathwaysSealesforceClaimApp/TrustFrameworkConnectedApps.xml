@@ -12,4 +12,21 @@
     <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKEXTENSIONS</PolicyId>
   </BasePolicy>
+  <BuildingBlocks>
+    
+  </BuildingBlocks>
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>Set Default Variable</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SetDefaultVariables">
+          <DisplayName>Default Variables</DisplayName>
+          <Protocol Name="OpenIdConnect" />
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="canCreateAccount" DefaultValue="false" AlwaysUseDefaultValue="true"/>
+          </InputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
 </TrustFrameworkPolicy>

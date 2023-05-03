@@ -161,7 +161,7 @@
           <OutputClaims>
             <!-- Required claims -->
             <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" PartnerClaimType="objectId" />
-            <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="false" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
@@ -209,7 +209,7 @@
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
           
-        <TechnicalProfile Id="LocalAccountSignUpWithLogonName-Claim">
+        <TechnicalProfile Id="LocalAccountSignUpWithLogonName-ClaimAccount">
           <DisplayName>User ID signup</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
@@ -251,12 +251,12 @@
             <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
           </OutputClaims>
           <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonName-Claim" />
+            <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonName-ClaimAccount" />
           </ValidationTechnicalProfiles>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
 
-        <TechnicalProfile Id="AAD-UserWriteUsingLogonName-Claim">
+        <TechnicalProfile Id="AAD-UserWriteUsingLogonName-ClaimAccount">
           <!-- Reference from UserWriteProfileUsingObjectId in TrustFrameworkBase -->
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -398,7 +398,7 @@
 
         <OrchestrationStep Order="2" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSignUpWithLogonNameClaimExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonName-Claim" />
+            <ClaimsExchange Id="LocalAccountSignUpWithLogonNameClaimAccountExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonName-ClaimAccount" />
           </ClaimsExchanges>
         </OrchestrationStep>
 

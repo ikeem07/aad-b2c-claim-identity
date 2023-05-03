@@ -4,12 +4,12 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0" 
-  TenantId="{Settings:Tenant}" 
+  TenantId="your-test-tenant.onmicrosoft.com" 
   PolicyId="B2C_1A_{Settings:TrustFrameworkExtensionsPolicyId}" 
-  PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_{Settings:TrustFrameworkExtensionsPolicyId}">
+  PublicPolicyUri="http://your-test-tenant.onmicrosoft.com/B2C_1A_{Settings:TrustFrameworkExtensionsPolicyId}">
   
   <BasePolicy>
-    <TenantId>{Settings:Tenant}</TenantId>
+    <TenantId>your-test-tenant.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_{Settings:TrustFrameworkLocalizationPolicyId}</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
@@ -120,12 +120,12 @@
       <TechnicalProfiles>
          <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
-            <Item Key="client_id">{Settings:ProxyIdentityExperienceFrameworkAppId}</Item>
-            <Item Key="IdTokenAudience">{Settings:IdentityExperienceFrameworkAppId}</Item>
+            <Item Key="client_id">Your AD test environment Proxy app Id</Item>
+            <Item Key="IdTokenAudience">Your test environment AD app Id</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{Settings:ProxyIdentityExperienceFrameworkAppId}" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="{Settings:IdentityExperienceFrameworkAppId}" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="Your AD test environment Proxy app Id" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="Your test environment AD app Id" />
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>

@@ -209,7 +209,7 @@
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
           
-        <TechnicalProfile Id="LocalAccountSignUpWithLogonName-Detailed">
+        <TechnicalProfile Id="LocalAccountSignUpWithLogonName-Claim">
           <DisplayName>User ID signup</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
@@ -251,12 +251,12 @@
             <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
           </OutputClaims>
           <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonName-Detailed" />
+            <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonName-Claim" />
           </ValidationTechnicalProfiles>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
 
-        <TechnicalProfile Id="AAD-UserWriteUsingLogonName-Detailed">
+        <TechnicalProfile Id="AAD-UserWriteUsingLogonName-Claim">
           <!-- Reference from UserWriteProfileUsingObjectId in TrustFrameworkBase -->
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -398,7 +398,7 @@
 
         <OrchestrationStep Order="2" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSignUpWithLogonName-Detailed" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonName-Detailed" />
+            <ClaimsExchange Id="LocalAccountSignUpWithLogonNameClaimExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonName-Claim" />
           </ClaimsExchanges>
         </OrchestrationStep>
 

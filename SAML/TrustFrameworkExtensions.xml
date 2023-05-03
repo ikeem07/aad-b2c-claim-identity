@@ -226,7 +226,7 @@
             <InputClaimsTransformation ReferenceId="CreateReadonlyEmailClaim" />
           </InputClaimsTransformations>
           <InputClaims>
-            <!-- Set input email to the ReadOnlyEmail claim type created in the above claim transformation -->
+            <!-- Set input email to the ReadOnlyEmail claim type created in the above InputClaimsTransformations -->
             <InputClaim ClaimTypeReferenceId="readOnlyEmail" />
             <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="signInNames.userName" />
             <InputClaim ClaimTypeReferenceId="displayName" />
@@ -240,12 +240,13 @@
             <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource" />
             <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
-            <!-- Fields viewable to the user -->
-            <OutputClaim ClaimTypeReferenceId="displayName" Required="true" />
+            <!-- All fields below viewable to the user -->
+            <!-- <OutputClaim ClaimTypeReferenceId="displayName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="givenName" Required="true" />
-            <OutputClaim ClaimTypeReferenceId="surname" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="surname" Required="true" /> -->
+            <!-- Read only email output here -->
             <OutputClaim ClaimTypeReferenceId="readOnlyEmail" Required="true" />
-            <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
+            <!-- <OutputClaim ClaimTypeReferenceId="signInName" Required="true" /> -->
             <OutputClaim ClaimTypeReferenceId="newPassword" Required="true" />
             <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
           </OutputClaims>

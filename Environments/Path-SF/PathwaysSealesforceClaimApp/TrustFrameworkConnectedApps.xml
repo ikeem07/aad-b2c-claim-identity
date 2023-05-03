@@ -24,6 +24,7 @@
           <Protocol Name="OpenIdConnect" />
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="canCreateAccount" DefaultValue="false" AlwaysUseDefaultValue="true"/>
+            <InputClaim ClaimTypeReferenceId="portalType" DefaultValue="ConnectedApp" AlwaysUseDefaultValue="true"/>
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>

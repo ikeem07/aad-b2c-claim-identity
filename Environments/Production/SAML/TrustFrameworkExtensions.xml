@@ -35,6 +35,20 @@
         <DataType>string</DataType>
         <UserInputType>Paragraph</UserInputType>
       </ClaimType>
+      <!-- Holds the read only email address claim that is presented to the user upon migration -->
+      <ClaimType Id="readonlyEmail">
+        <DisplayName>E-mail Address</DisplayName>
+        <DataType>string</DataType>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>
+      <!-- Not sure what this is for yet? -->
+      <ClaimType Id="strongAuthenticationEmailAddress">
+        <DisplayName>Email Address</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Email address that the user can use for strong authentication.</AdminHelpText>
+        <UserHelpText>Email address to use for strong authentication.</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
     </ClaimsSchema>
 
     <ClaimsTransformations>
@@ -47,6 +61,17 @@
         </InputParameters>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>
+      <ClaimsTransformation Id="CreateReadonlyEmailClaim" TransformationMethod="FormatStringClaim">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="stringFormat" DataType="string" Value="{0}" />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="readonlyEmail" TransformationClaimType="outputClaim" />
         </OutputClaims>
       </ClaimsTransformation>
     </ClaimsTransformations>
@@ -183,6 +208,87 @@
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
+          
+        <TechnicalProfile Id="LocalAccountSignUpWithLogonName-Detailed">
+          <DisplayName>User ID signup</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+            <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+            <Item Key="LocalAccountType">Username</Item>
+            <Item Key="LocalAccountProfile">true</Item>
+            <Item Key="language.button_continue">Claim</Item>
+            <!-- No need to verify email again -->
+            <Item Key="EnforceEmailVerification">False</Item>
+          </Metadata>
+          <!-- Transform email to be read only and output readOnlyEmail claim -->
+          <InputClaimsTransformations>
+            <InputClaimsTransformation ReferenceId="CreateReadonlyEmailClaim" />
+          </InputClaimsTransformations>
+          <InputClaims>
+            <!-- Set input email to the ReadOnlyEmail claim type created in the above claim transformation -->
+            <InputClaim ClaimTypeReferenceId="readOnlyEmail" />
+            <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="signInNames.userName" />
+            <InputClaim ClaimTypeReferenceId="displayName" />
+            <InputClaim ClaimTypeReferenceId="givenName" />
+            <InputClaim ClaimTypeReferenceId="surname" />
+            <InputClaim ClaimTypeReferenceId="newPassword" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" Required="true" />
+            <!-- Specifies whether attributes were collected from the user -->
+            <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
+            <!-- Fields viewable to the user -->
+            <OutputClaim ClaimTypeReferenceId="displayName" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="givenName" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="surname" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="readOnlyEmail" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="newPassword" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
+          </OutputClaims>
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonName-Detailed" />
+          </ValidationTechnicalProfiles>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+
+        <TechnicalProfile Id="AAD-UserWriteUsingLogonName-Detailed">
+          <!-- Reference from UserWriteProfileUsingObjectId in TrustFrameworkBase -->
+          <Metadata>
+            <Item Key="Operation">Write</Item>
+            <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
+            <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
+            <Item Key="EnforceEmailVerification">False</Item>
+          </Metadata>
+          <IncludeInSso>false</IncludeInSso>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
+          </InputClaims>
+          <PersistedClaims>
+            <!-- Required claims -->
+            <PersistedClaim ClaimTypeReferenceId="objectId" />
+            <!-- Optional claims. -->
+            <PersistedClaim ClaimTypeReferenceId="displayName" DefaultValue="SomeDefaultDisplayNameValue" />
+            <PersistedClaim ClaimTypeReferenceId="givenName" />
+            <PersistedClaim ClaimTypeReferenceId="surname" />
+            <PersistedClaim ClaimTypeReferenceId="email" PartnerClaimType="strongAuthenticationEmailAddress" />
+            <PersistedClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" />
+            <PersistedClaim ClaimTypeReferenceId="signInName" PartnerClaimType="signInNames.userName" />
+            <PersistedClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
+            <PersistedClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="false" AlwaysUseDefaultValue="true" />
+          </PersistedClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" />
+            <OutputClaim ClaimTypeReferenceId="newUser" PartnerClaimType="newClaimsPrincipalCreated" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="localAccountAuthentication" />
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
+          </OutputClaims>
+          <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
+        </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
   </ClaimsProviders>
@@ -247,6 +353,7 @@
           </ClaimsExchanges>
         </OrchestrationStep>
 
+        <!-- Migrate the user via subjourney -->
         <OrchestrationStep Order="5" Type="InvokeSubJourney">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -280,13 +387,21 @@
   <SubJourneys>
     <SubJourney Id="MigrateUser" Type="Transfer">
       <OrchestrationSteps>
+        <!-- Read the user's account using the claimAccountObjectId -->
+        <!-- ObjectId will get added to the claims bag here -->
         <OrchestrationStep Order="1" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="UserReadUsingClaimAccountObjectIdExchange" TechnicalProfileReferenceId="AAD-UserReadUsingClaimAccountObjectId" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSignUpWithLogonName-Detailed" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonName-Detailed" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </SubJourney>
   </SubJourneys>

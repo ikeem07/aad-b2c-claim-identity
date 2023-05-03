@@ -4,13 +4,13 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
-  TenantId="ecfmgexternaldev.onmicrosoft.com"
+  TenantId="{Settings:Tenant}"
   PolicyId="B2C_1A_IDENTITY-signup_signin"
-  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_IDENTITY-signup_signin">
+  PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_IDENTITY-signup_signin">
 
   <BasePolicy>
-    <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_EMT_IDENTITY-TRUSTFRAMEWORKEXTENSIONS</PolicyId>
+    <TenantId>{Settings:Tenant}</TenantId>
+    <PolicyId>B2C_1A_{Settings:TrustFrameworkExtensionsPolicyId}</PolicyId>
   </BasePolicy>
 
   <RelyingParty>

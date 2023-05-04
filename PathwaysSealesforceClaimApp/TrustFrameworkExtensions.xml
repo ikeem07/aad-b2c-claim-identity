@@ -57,6 +57,13 @@
         <AdminHelpText>Used to determine which portal a user used to entered the user journey</AdminHelpText>
         <UserHelpText>User help text for portalType</UserHelpText>
       </ClaimType>
+      <ClaimType Id="skipDecorate">
+        <DisplayName>Portal Type</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Used to determine whether or not to skip decorating the JWT</AdminHelpText>
+        <UserHelpText>User help text for skipDecorate</UserHelpText>
+      </ClaimType>
+      
     </ClaimsSchema>
 
     <ClaimsTransformations>
@@ -71,12 +78,12 @@
           <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
         </OutputClaims>
       </ClaimsTransformation>
-      <ClaimsTransformation Id="CreateAccountCannotBeCreatedErrorMessage" TransformationMethod="FormatStringClaim">
+      <ClaimsTransformation Id="CreateInvalidAccountTypeErrorMessage" TransformationMethod="FormatStringClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
         </InputClaims>
         <InputParameters>
-          <InputParameter Id="stringFormat" DataType="string" Value="The account associated with the email address {0} cannot be created through this portal" />
+          <InputParameter Id="stringFormat" DataType="string" Value="The account associated with the email address {0} cannot be claimed through this portal" />
         </InputParameters>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
@@ -180,7 +187,7 @@
           <OutputClaims>
             <!-- Required claims -->
             <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" PartnerClaimType="objectId" />
-            <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="false" />
+            <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="true" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
@@ -207,7 +214,7 @@
           </OutputClaims>
         </TechnicalProfile>
 
-        <TechnicalProfile Id="DisplayAccountCannotBeCreatedMessage">
+        <TechnicalProfile Id="DisplayInvalidAccountTypeMessage">
           <DisplayName>Display Unique Validation</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
@@ -218,7 +225,7 @@
           </Metadata>
           <InputClaimsTransformations>
             <!-- Transform the email claim into a user friendly message claim named userMessage -->
-            <InputClaimsTransformation ReferenceId="CreateAccountCannotBeCreatedErrorMessage" />
+            <InputClaimsTransformation ReferenceId="CreateInvalidAccountTypeErrorMessage" />
           </InputClaimsTransformations>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="userMessage" />
@@ -226,6 +233,7 @@
           <OutputClaims>
             <!-- Show message to the user -->
             <OutputClaim ClaimTypeReferenceId="userMessage" />
+            <OutputClaim ClaimTypeReferenceId="skipDecorate" DefaultValue="true" AlwaysUseDefaultValue="true"/>
           </OutputClaims>
         </TechnicalProfile>
 
@@ -373,8 +381,30 @@
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <!-- Display account already claimed message to user -->
+        <!-- Error message for account claimed already -->
         <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+              <Value>claimAccountObjectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>migrationRequired</Value>
+              <Value>true</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="DisplayAccountAlreadyClaimedMessageExchange" TechnicalProfileReferenceId="DisplayAccountAlreadyClaimedMessage" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Error message for wrong portal -->
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -391,7 +421,7 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="DisplayAccountCannotBeCreatedMessageExchange" TechnicalProfileReferenceId="DisplayAccountCannotBeCreatedMessage" />
+            <ClaimsExchange Id="DisplayInvalidAccountTypeMessageExchange" TechnicalProfileReferenceId="DisplayInvalidAccountTypeMessage" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
@@ -421,7 +451,7 @@
           </JourneyList>
         </OrchestrationStep> -->
 
-        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="6" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
 	</UserJourneys>

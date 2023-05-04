@@ -27,6 +27,8 @@
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="NoObjectID"/>
         <OutputClaim ClaimTypeReferenceId="canCreateAccount" />
         <OutputClaim ClaimTypeReferenceId="portalType" />
+        <OutputClaim ClaimTypeReferenceId="migrationRequired" />
+        <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
         <!-- <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
         <OutputClaim ClaimTypeReferenceId="migrationRequired" />
         <OutputClaim ClaimTypeReferenceId="displayName" />

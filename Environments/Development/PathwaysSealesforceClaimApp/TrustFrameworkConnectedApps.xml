@@ -10,7 +10,7 @@
   
   <BasePolicy>
     <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_IDENTITY-TRUSTFRAMEWORKEXTENSIONS</PolicyId>
+    <PolicyId>B2C_1A_EMT_IDENTITY-TRUSTFRAMEWORKEXTENSIONS</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
     

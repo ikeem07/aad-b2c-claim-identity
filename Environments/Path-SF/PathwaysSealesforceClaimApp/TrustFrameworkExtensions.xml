@@ -67,7 +67,18 @@
     </ClaimsSchema>
 
     <ClaimsTransformations>
-      <ClaimsTransformation Id="CreateAccountClaimedErrorMessage" TransformationMethod="FormatStringClaim">
+      <ClaimsTransformation Id="CreateCannotCreateAccountErrorMessage" TransformationMethod="FormatStringClaim">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="stringFormat" DataType="string" Value="You cannot create or claim an account with {0} email address" />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>
+      <ClaimsTransformation Id="CreateAccountAlreadyClaimedErrorMessage" TransformationMethod="FormatStringClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
         </InputClaims>
@@ -192,8 +203,8 @@
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
 
-        <TechnicalProfile Id="DisplayAccountAlreadyClaimedMessage">
-          <DisplayName>Display Unique Validation</DisplayName>
+        <TechnicalProfile Id="DisplayCannotCreateAccountMessage">
+          <DisplayName>Display Message for Cannot Create Account</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
@@ -203,7 +214,29 @@
           </Metadata>
           <InputClaimsTransformations>
             <!-- Transform the email claim into a user friendly message claim named userMessage -->
-            <InputClaimsTransformation ReferenceId="CreateAccountClaimedErrorMessage" />
+            <InputClaimsTransformation ReferenceId="CreateCannotCreateAccountErrorMessage" />
+          </InputClaimsTransformations>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="userMessage" />
+          </InputClaims>
+          <OutputClaims>
+            <!-- Show message to the user -->
+            <OutputClaim ClaimTypeReferenceId="userMessage" />
+          </OutputClaims>
+        </TechnicalProfile>
+        
+        <TechnicalProfile Id="DisplayAccountAlreadyClaimedMessage">
+          <DisplayName>Display Message for Already Claimed</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+            <!-- hide the continue and cancel buttons -->
+            <Item Key="setting.showContinueButton">false</Item>
+            <Item Key="setting.showCancelButton">false</Item>
+          </Metadata>
+          <InputClaimsTransformations>
+            <!-- Transform the email claim into a user friendly message claim named userMessage -->
+            <InputClaimsTransformation ReferenceId="CreateAccountAlreadyClaimedErrorMessage" />
           </InputClaimsTransformations>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="userMessage" />
@@ -215,7 +248,7 @@
         </TechnicalProfile>
 
         <TechnicalProfile Id="DisplayInvalidAccountTypeMessage">
-          <DisplayName>Display Unique Validation</DisplayName>
+          <DisplayName>Display Message for Invalid Account Type</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
@@ -381,8 +414,31 @@
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <!-- Error message for account claimed already -->
+        <!-- There is no account to migrate -->
+        <!-- User cannot create a new account if portalType is ConnectedApp -->
         <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>claimAccountObjectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>canCreateAccount</Value>
+              <Value>true</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="DisplayCannotCreateAccountMessageExchange" TechnicalProfileReferenceId="DisplayCannotCreateAccountMessage" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Error message for account claimed already -->
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -404,7 +460,7 @@
         </OrchestrationStep>
 
         <!-- Error message for wrong portal -->
-        <OrchestrationStep Order="5" Type="ClaimsExchange">
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -451,7 +507,7 @@
           </JourneyList>
         </OrchestrationStep> -->
 
-        <OrchestrationStep Order="6" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
 	</UserJourneys>

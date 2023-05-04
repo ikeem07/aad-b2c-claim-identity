@@ -1,19 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<TrustFrameworkPolicy 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
-  PolicySchemaVersion="0.3.0.0" 
-  TenantId="ecfmgexternaldev.onmicrosoft.com" 
-  PolicyId="B2C_1A_EMT_IDENTITY-TRUSTFRAMEWORKEXTENSIONS" 
-  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_EMT_IDENTITY-TRUSTFRAMEWORKEXTENSIONS">
-  
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TrustFrameworkPolicy
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="ecfmgexternaldev.onmicrosoft.com"
+  PolicyId="B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKEXTENSIONS"
+  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKEXTENSIONS">
+
   <BasePolicy>
     <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_EMT_IDENTITY-TRUSTFRAMEWORKLOCALIZATION</PolicyId>
+    <PolicyId>B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKLOCALIZATION</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
     <ClaimsSchema>
+      <ClaimType Id="mergeAccount">
+        <DisplayName>Merge Account</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>
       <ClaimType Id="migrationRequired">
         <DisplayName>migrationRequired</DisplayName>
         <DataType>boolean</DataType>
@@ -25,6 +29,12 @@
         <DataType>string</DataType>
         <AdminHelpText>Admin help text for claimAccountObjectId</AdminHelpText>
         <UserHelpText>User help text for claimAccountObjectId</UserHelpText>
+      </ClaimType>
+      <ClaimType Id="portalType">
+        <DisplayName>Portal user is accessing from</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Gets overridden at start</AdminHelpText>
+        <UserHelpText>User help text for portalType</UserHelpText>
       </ClaimType>
       <ClaimType Id="userMessage">
         <DisplayName>Error Message</DisplayName>
@@ -45,56 +55,17 @@
         <UserHelpText>Email address to use for strong authentication.</UserHelpText>
         <UserInputType>TextBox</UserInputType>
       </ClaimType>
-      <ClaimType Id="canCreateAccount">
-        <DisplayName>Can Create Account</DisplayName>
-        <DataType>boolean</DataType>
-        <AdminHelpText>Used to determine if a user has the ability to create an account</AdminHelpText>
-        <UserHelpText>User help text for canCreateAccount</UserHelpText>
-      </ClaimType>
-      <ClaimType Id="portalType">
-        <DisplayName>Portal Type</DisplayName>
-        <DataType>string</DataType>
-        <AdminHelpText>Used to determine which portal a user used to entered the user journey</AdminHelpText>
-        <UserHelpText>User help text for portalType</UserHelpText>
-      </ClaimType>
-      <ClaimType Id="skipDecorate">
-        <DisplayName>Portal Type</DisplayName>
-        <DataType>string</DataType>
-        <AdminHelpText>Used to determine whether or not to skip decorating the JWT</AdminHelpText>
-        <UserHelpText>User help text for skipDecorate</UserHelpText>
-      </ClaimType>
-      
     </ClaimsSchema>
 
     <ClaimsTransformations>
-      <ClaimsTransformation Id="CreateCannotCreateAccountErrorMessage" TransformationMethod="FormatStringClaim">
+      <ClaimsTransformation Id="CreateAccountClaimedErrorMessage"
+        TransformationMethod="FormatStringClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
         </InputClaims>
         <InputParameters>
-          <InputParameter Id="stringFormat" DataType="string" Value="You cannot create or claim an account with {0} email address" />
-        </InputParameters>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
-        </OutputClaims>
-      </ClaimsTransformation>
-      <ClaimsTransformation Id="CreateAccountAlreadyClaimedErrorMessage" TransformationMethod="FormatStringClaim">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
-        </InputClaims>
-        <InputParameters>
-          <InputParameter Id="stringFormat" DataType="string" Value="You aleady have an account with {0} email address" />
-        </InputParameters>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
-        </OutputClaims>
-      </ClaimsTransformation>
-      <ClaimsTransformation Id="CreateInvalidAccountTypeErrorMessage" TransformationMethod="FormatStringClaim">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
-        </InputClaims>
-        <InputParameters>
-          <InputParameter Id="stringFormat" DataType="string" Value="The account associated with the email address {0} cannot be claimed through this portal" />
+          <InputParameter Id="stringFormat" DataType="string"
+            Value="You aleady have an account with {0} email address" />
         </InputParameters>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
@@ -111,7 +82,21 @@
           <OutputClaim ClaimTypeReferenceId="readonlyEmail" TransformationClaimType="outputClaim" />
         </OutputClaims>
       </ClaimsTransformation>
+      <ClaimsTransformation Id="CreateAccountCannotBeCreatedErrorMessage"
+        TransformationMethod="FormatStringClaim">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="stringFormat" DataType="string"
+            Value="Account {0} email address does not exist and cannot be created. Please try a different account or wait until MyIntealh is live." />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>
     </ClaimsTransformations>
+
 
     <ContentDefinitions>
       <ContentDefinition Id="api.localaccount.emailVerification">
@@ -122,7 +107,8 @@
           <Item Key="DisplayName">Collect information from user page</Item>
         </Metadata>
         <LocalizedResourcesReferences MergeBehavior="Prepend">
-          <LocalizedResourcesReference Language="en" LocalizedResourcesReferenceId="api.localaccount.emailVerification.en" />
+          <LocalizedResourcesReference Language="en"
+            LocalizedResourcesReferenceId="api.localaccount.emailVerification.en" />
         </LocalizedResourcesReferences>
       </ContentDefinition>
     </ContentDefinitions>
@@ -142,48 +128,56 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="AAD-Common">
           <Metadata>
-            <!--Insert b2c-extensions-app application ID here, for example: 11111111-1111-1111-1111-111111111111-->  
+            <!--Insert
+            b2c-extensions-app application ID here, for example:
+            11111111-1111-1111-1111-111111111111-->
             <Item Key="ClientId">0a5b76b3-1649-4dfd-9d82-ec47e0c02485</Item>
-            <!--Insert b2c-extensions-app application ObjectId here, for example: 22222222-2222-2222-2222-222222222222-->
+            <!--Insert
+            b2c-extensions-app application ObjectId here, for example:
+            22222222-2222-2222-2222-222222222222-->
             <Item Key="ApplicationObjectId">f44b58da-c08d-4f90-8ef9-552967bff5cb</Item>
           </Metadata>
         </TechnicalProfile>
-      </TechnicalProfiles> 
+      </TechnicalProfiles>
     </ClaimsProvider>
 
 
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
       <TechnicalProfiles>
-         <TechnicalProfile Id="login-NonInteractive">
+        <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
             <Item Key="client_id">b6316e8e-dc15-4f3f-b0b3-6a1540ee7efd</Item>
             <Item Key="IdTokenAudience">8ea0d8f1-94a4-4aac-a927-decfd13f5a5d</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="b6316e8e-dc15-4f3f-b0b3-6a1540ee7efd" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="8ea0d8f1-94a4-4aac-a927-decfd13f5a5d" />
+            <InputClaim ClaimTypeReferenceId="client_id"
+              DefaultValue="b6316e8e-dc15-4f3f-b0b3-6a1540ee7efd" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource"
+              DefaultValue="8ea0d8f1-94a4-4aac-a927-decfd13f5a5d" />
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
 
-    
+
     <ClaimsProvider>
       <DisplayName>Local Account</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="SelfAsserted-EmailValidation">
           <DisplayName>Validate Email</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Protocol Name="Proprietary"
+            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.localaccount.emailVerification</Item>
             <Item Key="language.button_continue">Continue</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="signInName"/>
+            <InputClaim ClaimTypeReferenceId="signInName" />
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="Verified.Email" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="Verified.Email"
+              Required="true" />
           </OutputClaims>
         </TechnicalProfile>
 
@@ -193,41 +187,22 @@
             <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress"
+              Required="true" />
           </InputClaims>
           <OutputClaims>
             <!-- Required claims -->
             <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" PartnerClaimType="objectId" />
-            <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="migrationRequired"
+              PartnerClaimType="extension_requiresMigration" DefaultValue="false" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
 
-        <TechnicalProfile Id="DisplayCannotCreateAccountMessage">
-          <DisplayName>Display Message for Cannot Create Account</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
-            <!-- hide the continue and cancel buttons -->
-            <Item Key="setting.showContinueButton">false</Item>
-            <Item Key="setting.showCancelButton">false</Item>
-          </Metadata>
-          <InputClaimsTransformations>
-            <!-- Transform the email claim into a user friendly message claim named userMessage -->
-            <InputClaimsTransformation ReferenceId="CreateCannotCreateAccountErrorMessage" />
-          </InputClaimsTransformations>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="userMessage" />
-          </InputClaims>
-          <OutputClaims>
-            <!-- Show message to the user -->
-            <OutputClaim ClaimTypeReferenceId="userMessage" />
-          </OutputClaims>
-        </TechnicalProfile>
-        
         <TechnicalProfile Id="DisplayAccountAlreadyClaimedMessage">
-          <DisplayName>Display Message for Already Claimed</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <DisplayName>Display Unique Validation</DisplayName>
+          <Protocol Name="Proprietary"
+            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
             <!-- hide the continue and cancel buttons -->
@@ -236,7 +211,7 @@
           </Metadata>
           <InputClaimsTransformations>
             <!-- Transform the email claim into a user friendly message claim named userMessage -->
-            <InputClaimsTransformation ReferenceId="CreateAccountAlreadyClaimedErrorMessage" />
+            <InputClaimsTransformation ReferenceId="CreateAccountClaimedErrorMessage" />
           </InputClaimsTransformations>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="userMessage" />
@@ -247,9 +222,10 @@
           </OutputClaims>
         </TechnicalProfile>
 
-        <TechnicalProfile Id="DisplayInvalidAccountTypeMessage">
-          <DisplayName>Display Message for Invalid Account Type</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <TechnicalProfile Id="DisplayAccountCannotBeCreatedMessageExchange">
+          <DisplayName>Display Unique Validation</DisplayName>
+          <Protocol Name="Proprietary"
+            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
             <!-- hide the continue and cancel buttons -->
@@ -258,7 +234,7 @@
           </Metadata>
           <InputClaimsTransformations>
             <!-- Transform the email claim into a user friendly message claim named userMessage -->
-            <InputClaimsTransformation ReferenceId="CreateInvalidAccountTypeErrorMessage" />
+            <InputClaimsTransformation ReferenceId="CreateAccountCannotBeCreatedErrorMessage" />
           </InputClaimsTransformations>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="userMessage" />
@@ -266,9 +242,9 @@
           <OutputClaims>
             <!-- Show message to the user -->
             <OutputClaim ClaimTypeReferenceId="userMessage" />
-            <OutputClaim ClaimTypeReferenceId="skipDecorate" DefaultValue="true" AlwaysUseDefaultValue="true"/>
           </OutputClaims>
         </TechnicalProfile>
+
 
         <TechnicalProfile Id="AAD-UserReadUsingClaimAccountObjectId">
           <Metadata>
@@ -277,7 +253,8 @@
           </Metadata>
           <IncludeInSso>false</IncludeInSso>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="claimAccountObjectId" PartnerClaimType="objectId" Required="true" />
+            <InputClaim ClaimTypeReferenceId="claimAccountObjectId" PartnerClaimType="objectId"
+              Required="true" />
           </InputClaims>
           <OutputClaims>
             <!-- Optional claims -->
@@ -290,10 +267,11 @@
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
-          
+
         <TechnicalProfile Id="LocalAccountSignUpWithLogonName-ClaimAccount">
           <DisplayName>User ID signup</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Protocol Name="Proprietary"
+            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
             <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
@@ -308,7 +286,8 @@
             <InputClaimsTransformation ReferenceId="CreateReadonlyEmailClaim" />
           </InputClaimsTransformations>
           <InputClaims>
-            <!-- Set input email to the ReadOnlyEmail claim type created in the above InputClaimsTransformations -->
+            <!-- Set input email to the ReadOnlyEmail claim type created in the above
+            InputClaimsTransformations -->
             <InputClaim ClaimTypeReferenceId="readOnlyEmail" />
             <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="signInNames.userName" />
             <InputClaim ClaimTypeReferenceId="displayName" />
@@ -354,19 +333,25 @@
             <!-- Required claims -->
             <PersistedClaim ClaimTypeReferenceId="objectId" />
             <!-- Optional claims. -->
-            <PersistedClaim ClaimTypeReferenceId="displayName" DefaultValue="SomeDefaultDisplayNameValue" />
+            <PersistedClaim ClaimTypeReferenceId="displayName"
+              DefaultValue="SomeDefaultDisplayNameValue" />
             <PersistedClaim ClaimTypeReferenceId="givenName" />
             <PersistedClaim ClaimTypeReferenceId="surname" />
-            <PersistedClaim ClaimTypeReferenceId="email" PartnerClaimType="strongAuthenticationEmailAddress" />
+            <PersistedClaim ClaimTypeReferenceId="email"
+              PartnerClaimType="strongAuthenticationEmailAddress" />
             <PersistedClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" />
-            <PersistedClaim ClaimTypeReferenceId="signInName" PartnerClaimType="signInNames.userName" />
+            <PersistedClaim ClaimTypeReferenceId="signInName"
+              PartnerClaimType="signInNames.userName" />
             <PersistedClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
-            <PersistedClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_migrationRequired" DefaultValue="false" AlwaysUseDefaultValue="true" />
+            <PersistedClaim ClaimTypeReferenceId="migrationRequired"
+              PartnerClaimType="extension_migrationRequired" DefaultValue="false"
+              AlwaysUseDefaultValue="true" />
           </PersistedClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="objectId" />
             <OutputClaim ClaimTypeReferenceId="newUser" PartnerClaimType="newClaimsPrincipalCreated" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="localAccountAuthentication" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource"
+              DefaultValue="localAccountAuthentication" />
             <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
@@ -379,17 +364,19 @@
   <UserJourneys>
     <UserJourney Id="SignUpSignInOrClaim" DefaultCpimIssuerTechnicalProfileReferenceId="JwtIssuer">
       <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp"
+          ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
             <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
           </ClaimsProviderSelections>
           <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange"
+              TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
         <!-- Perform email validation -->
-        <OrchestrationStep  Order="2" Type="ClaimsExchange">
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -397,12 +384,13 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="EmailValidationExchange" TechnicalProfileReferenceId="SelfAsserted-EmailValidation" />
+            <ClaimsExchange Id="EmailValidationExchange"
+              TechnicalProfileReferenceId="SelfAsserted-EmailValidation" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
         <!-- Get user info by email -->
-        <OrchestrationStep  Order="3" Type="ClaimsExchange">
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -410,12 +398,12 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="UserReadUsingLocalAccountEmailExchange" TechnicalProfileReferenceId="AAD-UserReadUsingLocalAccountEmail" />
+            <ClaimsExchange Id="UserReadUsingLocalAccountEmailExchange"
+              TechnicalProfileReferenceId="AAD-UserReadUsingLocalAccountEmail" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <!-- There is no account to migrate -->
-        <!-- User cannot create a new account if portalType is ConnectedApp -->
+        <!-- Display cannot create account message to user -->
         <OrchestrationStep Order="4" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -426,18 +414,14 @@
               <Value>claimAccountObjectId</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
-            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>canCreateAccount</Value>
-              <Value>true</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="DisplayCannotCreateAccountMessageExchange" TechnicalProfileReferenceId="DisplayCannotCreateAccountMessage" />
+            <ClaimsExchange Id="DisplayAccountCannotBeCreatedMessageExchange"
+              TechnicalProfileReferenceId="DisplayAccountCannotBeCreatedMessageExchange" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <!-- Error message for account claimed already -->
+        <!-- Display account already claimed message to user -->
         <OrchestrationStep Order="5" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -455,34 +439,13 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="DisplayAccountAlreadyClaimedMessageExchange" TechnicalProfileReferenceId="DisplayAccountAlreadyClaimedMessage" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <!-- Error message for wrong portal -->
-        <OrchestrationStep Order="6" Type="ClaimsExchange">
-          <Preconditions>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>objectId</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
-              <Value>claimAccountObjectId</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-            <Precondition  Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>portalType</Value>
-              <Value>ConnectedApp</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-          </Preconditions>
-          <ClaimsExchanges>
-            <ClaimsExchange Id="DisplayInvalidAccountTypeMessageExchange" TechnicalProfileReferenceId="DisplayInvalidAccountTypeMessage" />
+            <ClaimsExchange Id="DisplayAccountAlreadyClaimedMessageExchange"
+              TechnicalProfileReferenceId="DisplayAccountAlreadyClaimedMessage" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
         <!-- Migrate the user via subjourney -->
-        <!-- <OrchestrationStep Order="5" Type="InvokeSubJourney">
+        <OrchestrationStep Order="6" Type="InvokeSubJourney">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -505,31 +468,35 @@
           <JourneyList>
             <Candidate SubJourneyReferenceId="MigrateUser" />
           </JourneyList>
-        </OrchestrationStep> -->
+        </OrchestrationStep>
 
-        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="7" Type="SendClaims"
+          CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
-	</UserJourneys>
+  </UserJourneys>
 
   <SubJourneys>
     <SubJourney Id="MigrateUser" Type="Transfer">
       <OrchestrationSteps>
         <!-- Read the user's account using the claimAccountObjectId -->
-        <!-- ObjectId will get added to the claims bag when this step completes -->
+        <!-- ObjectId will get added to the claims bag here -->
         <OrchestrationStep Order="1" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="UserReadUsingClaimAccountObjectIdExchange" TechnicalProfileReferenceId="AAD-UserReadUsingClaimAccountObjectId" />
+            <ClaimsExchange Id="UserReadUsingClaimAccountObjectIdExchange"
+              TechnicalProfileReferenceId="AAD-UserReadUsingClaimAccountObjectId" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
         <OrchestrationStep Order="2" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSignUpWithLogonNameClaimAccountExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonName-ClaimAccount" />
+            <ClaimsExchange Id="LocalAccountSignUpWithLogonNameClaimAccountExchange"
+              TechnicalProfileReferenceId="LocalAccountSignUpWithLogonName-ClaimAccount" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="3" Type="SendClaims"
+          CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </SubJourney>
   </SubJourneys>

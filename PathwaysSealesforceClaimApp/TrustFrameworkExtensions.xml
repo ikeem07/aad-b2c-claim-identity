@@ -57,6 +57,12 @@
         <AdminHelpText>Used to determine which portal a user used to entered the user journey</AdminHelpText>
         <UserHelpText>User help text for portalType</UserHelpText>
       </ClaimType>
+      <ClaimType Id="accountType">
+        <DisplayName>Portal Type</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Used to determine the type of user loggin in</AdminHelpText>
+        <UserHelpText>User help text for accountType</UserHelpText>
+      </ClaimType>
       <ClaimType Id="skipDecorate">
         <DisplayName>Portal Type</DisplayName>
         <DataType>string</DataType>
@@ -198,7 +204,7 @@
           <OutputClaims>
             <!-- Required claims -->
             <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" PartnerClaimType="objectId" />
-            <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="false" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
@@ -471,8 +477,8 @@
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
             <Precondition  Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>portalType</Value>
-              <Value>ConnectedApp</Value>
+              <Value>accountType</Value>
+              <Value>Entity</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
           </Preconditions>
@@ -510,7 +516,7 @@
         <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
-	</UserJourneys>
+  </UserJourneys>
 
   <SubJourneys>
     <SubJourney Id="MigrateUser" Type="Transfer">

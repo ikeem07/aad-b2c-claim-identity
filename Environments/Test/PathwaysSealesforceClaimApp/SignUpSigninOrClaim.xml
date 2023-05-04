@@ -22,6 +22,9 @@
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="accountType" DefaultValue="Entity" AlwaysUseDefaultValue="true"/>
+      </InputClaims>
       <OutputClaims>
         <!-- <OutputClaim ClaimTypeReferenceId="email" /> -->
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="NoObjectID"/>
@@ -42,3 +45,4 @@
     </TechnicalProfile>
   </RelyingParty>
 </TrustFrameworkPolicy>
+

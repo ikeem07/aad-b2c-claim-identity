@@ -23,7 +23,7 @@
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <InputClaims>
-        <InputClaim ClaimTypeReferenceId="accountType" DefaultValue="Entity" AlwaysUseDefaultValue="true"/>
+        <InputClaim ClaimTypeReferenceId="relyingPartyAccountType" DefaultValue="Entity" AlwaysUseDefaultValue="true"/>
       </InputClaims>
       <OutputClaims>
         <!-- <OutputClaim ClaimTypeReferenceId="email" /> -->
@@ -32,6 +32,9 @@
         <OutputClaim ClaimTypeReferenceId="portalType" />
         <OutputClaim ClaimTypeReferenceId="migrationRequired" />
         <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
+        <OutputClaim ClaimTypeReferenceId="accountType" />
+        <OutputClaim ClaimTypeReferenceId="isCorrectAccountType" />
+        <!-- <OutputClaim ClaimTypeReferenceId="relyingPartyAccountType" /> -->
         <!-- <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
         <OutputClaim ClaimTypeReferenceId="migrationRequired" />
         <OutputClaim ClaimTypeReferenceId="displayName" />

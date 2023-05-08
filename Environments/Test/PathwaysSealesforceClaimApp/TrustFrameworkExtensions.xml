@@ -58,10 +58,22 @@
         <UserHelpText>User help text for portalType</UserHelpText>
       </ClaimType>
       <ClaimType Id="accountType">
-        <DisplayName>Portal Type</DisplayName>
+        <DisplayName>Account Type</DisplayName>
         <DataType>string</DataType>
-        <AdminHelpText>Used to determine the type of user loggin in</AdminHelpText>
+        <AdminHelpText>Used to determine the type of user logging in</AdminHelpText>
         <UserHelpText>User help text for accountType</UserHelpText>
+      </ClaimType>
+      <ClaimType Id="relyingPartyAccountType">
+        <DisplayName>Relying Party Account Type</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Used to determine the account type of the relying party</AdminHelpText>
+        <UserHelpText>User help text for relyingPartyAccountType</UserHelpText>
+      </ClaimType>
+      <ClaimType Id="isCorrectAccountType">
+        <DisplayName>Is Correct Account Type</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>The result of comparing accountType with relyingPartyAccountType</AdminHelpText>
+        <UserHelpText>User help text for isCorrectAccountType</UserHelpText>
       </ClaimType>
       <ClaimType Id="skipDecorate">
         <DisplayName>Portal Type</DisplayName>
@@ -84,6 +96,7 @@
           <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
         </OutputClaims>
       </ClaimsTransformation>
+
       <ClaimsTransformation Id="CreateAccountAlreadyClaimedErrorMessage" TransformationMethod="FormatStringClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
@@ -95,6 +108,7 @@
           <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
         </OutputClaims>
       </ClaimsTransformation>
+
       <ClaimsTransformation Id="CreateInvalidAccountTypeErrorMessage" TransformationMethod="FormatStringClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
@@ -106,6 +120,7 @@
           <OutputClaim ClaimTypeReferenceId="userMessage" TransformationClaimType="outputClaim" />
         </OutputClaims>
       </ClaimsTransformation>
+
       <ClaimsTransformation Id="CreateReadonlyEmailClaim" TransformationMethod="FormatStringClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim" />
@@ -115,6 +130,20 @@
         </InputParameters>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="readonlyEmail" TransformationClaimType="outputClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>
+
+      <ClaimsTransformation Id="CheckAccountType" TransformationMethod="CompareClaims">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="accountType" TransformationClaimType="inputClaim1"/>
+          <InputClaim ClaimTypeReferenceId="relyingPartyAccountType" TransformationClaimType="inputClaim2"/>
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="operator" DataType="string" Value="EQUAL" />
+          <InputParameter Id="ignoreCase" DataType="string" Value="true" />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="isCorrectAccountType" TransformationClaimType="outputClaim" />
         </OutputClaims>
       </ClaimsTransformation>
     </ClaimsTransformations>
@@ -205,8 +234,26 @@
             <!-- Required claims -->
             <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" PartnerClaimType="objectId" />
             <OutputClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration" DefaultValue="false" />
+            <OutputClaim ClaimTypeReferenceId="accountType" PartnerClaimType="extension_accountType" DefaultValue="None" />
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+        </TechnicalProfile>
+
+        <TechnicalProfile Id="CompareAccountTypeValues">
+          <DisplayName>Copare accountType and relyingPartyAccountType</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <InputClaimsTransformations>
+            <!-- Compare accountType to relyingPartyAccountType and return boolean -->
+            <InputClaimsTransformation ReferenceId="CheckAccountType" />
+          </InputClaimsTransformations>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="accountType" />
+            <InputClaim ClaimTypeReferenceId="relyingPartyAccountType" />
+            <InputClaim ClaimTypeReferenceId="isCorrectAccountType" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="isCorrectAccountType" DefaultValue="false" />
+          </OutputClaims>
         </TechnicalProfile>
 
         <TechnicalProfile Id="DisplayCannotCreateAccountMessage">
@@ -465,7 +512,7 @@
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <!-- Error message for wrong portal -->
+        <!-- Compare the accountTypes from User and RelyingParty: returns boolean -->
         <OrchestrationStep Order="6" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -476,19 +523,14 @@
               <Value>claimAccountObjectId</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
-            <Precondition  Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>accountType</Value>
-              <Value>Entity</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="DisplayInvalidAccountTypeMessageExchange" TechnicalProfileReferenceId="DisplayInvalidAccountTypeMessage" />
+            <ClaimsExchange Id="CompareAccountTypeValuesExchange" TechnicalProfileReferenceId="CompareAccountTypeValues"/>
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <!-- Migrate the user via subjourney -->
-        <!-- <OrchestrationStep Order="5" Type="InvokeSubJourney">
+        <!-- Error message for wrong portal -->
+        <OrchestrationStep Order="7" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -498,8 +540,26 @@
               <Value>claimAccountObjectId</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>isCorrectAccountType</Value>
+              <Value>true</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="DisplayInvalidAccountTypeMessageExchange" TechnicalProfileReferenceId="DisplayInvalidAccountTypeMessage" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Migrate the user via subjourney -->
+        <OrchestrationStep Order="8" Type="InvokeSubJourney">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
-              <Value>migrationRequired</Value>
+              <Value>claimAccountObjectId</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
@@ -511,9 +571,9 @@
           <JourneyList>
             <Candidate SubJourneyReferenceId="MigrateUser" />
           </JourneyList>
-        </OrchestrationStep> -->
+        </OrchestrationStep>
 
-        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
   </UserJourneys>

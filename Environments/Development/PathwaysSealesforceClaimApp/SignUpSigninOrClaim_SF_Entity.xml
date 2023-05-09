@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TrustFrameworkPolicy
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="ecfmgexternaldev.onmicrosoft.com"
+  PolicyId="B2C_1A_IJW-IDENTITY-signup_signin_claim_sf_entity"
+  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_IJW-IDENTITY-signup_signin_claim_sf_entity">
+
+  <BasePolicy>
+    <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_{Settings:TrustFrameworkConnectedAppsPolicyId}</PolicyId>
+  </BasePolicy>
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="SignUpSignInOrClaim" />
+    <UserJourneyBehaviors>
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="85bbbb9a-0090-44b9-95a1-e32fdb79fa06" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
+      <ScriptExecution>Allow</ScriptExecution>
+    </UserJourneyBehaviors>
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="relyingPartyAccountType" DefaultValue="Entity" AlwaysUseDefaultValue="true"/>
+      </InputClaims>
+      <OutputClaims>
+        <!-- <OutputClaim ClaimTypeReferenceId="email" /> -->
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="NoObjectID"/>
+        <OutputClaim ClaimTypeReferenceId="canCreateAccount" />
+        <OutputClaim ClaimTypeReferenceId="portalType" />
+        <OutputClaim ClaimTypeReferenceId="migrationRequired" />
+        <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
+        <OutputClaim ClaimTypeReferenceId="accountType" />
+        <OutputClaim ClaimTypeReferenceId="isCorrectAccountType" />
+        <!-- <OutputClaim ClaimTypeReferenceId="relyingPartyAccountType" /> -->
+        <!-- <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
+        <OutputClaim ClaimTypeReferenceId="migrationRequired" />
+        <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="otherMails" />
+        <OutputClaim ClaimTypeReferenceId="givenName" />
+        <OutputClaim ClaimTypeReferenceId="surname" /> -->
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+      <IncludeTechnicalProfile ReferenceId="SetDefaultVariables" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>
+

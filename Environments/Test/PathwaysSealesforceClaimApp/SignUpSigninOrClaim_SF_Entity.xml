@@ -4,13 +4,13 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
-  TenantId="ecfmgexternaldev.onmicrosoft.com"
-  PolicyId="B2C_1A_IJW-IDENTITY-signup_signin_claim"
-  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_IJW-IDENTITY-signup_signin_claim">
+  TenantId="your-test-tenant.onmicrosoft.com"
+  PolicyId="B2C_1A_IJW-IDENTITY-signup_signin_claim_sf_entity"
+  PublicPolicyUri="http://your-test-tenant.onmicrosoft.com/B2C_1A_IJW-IDENTITY-signup_signin_claim_sf_entity">
 
   <BasePolicy>
-    <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKCONNECTEDAPPS</PolicyId>
+    <TenantId>your-test-tenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_{Settings:TrustFrameworkConnectedAppsPolicyId}</PolicyId>
   </BasePolicy>
 
   <RelyingParty>

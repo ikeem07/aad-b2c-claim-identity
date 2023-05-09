@@ -15,7 +15,7 @@
   <UserJourneys>
     <UserJourney Id="SignUpSignInOrClaim">
       <OrchestrationSteps>
-        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="Saml2AssertionIssuer" />
+        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="Salesforce-SAML2" />
       </OrchestrationSteps>
     </UserJourney>
   </UserJourneys>
@@ -27,27 +27,25 @@
     </UserJourneyBehaviors>
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
-      <Protocol Name="OpenIdConnect" />
+      <Protocol Name="SAML2" />
+      <Metadata>
+        <Item Key="IdpInitiatedProfileEnabled">true</Item>
+        <Item Key="PartnerEntity">https://ecfmg-identity-dev-ed.develop.my.salesforce.com/.well-known/samlidp/cxa_identity.xml</Item>
+        <Item Key="WantsSignedRequests">false</Item>
+        <Item Key="WantsSignedAuthnRequests">false</Item>
+        <Item Key="WantsSignedAssertions">false</Item>
+      </Metadata>
       <InputClaims>
         <InputClaim ClaimTypeReferenceId="relyingPartyAccountType" DefaultValue="Entity" AlwaysUseDefaultValue="true"/>
       </InputClaims>
       <OutputClaims>
-        <!-- <OutputClaim ClaimTypeReferenceId="email" /> -->
-        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="NoObjectID"/>
-        <OutputClaim ClaimTypeReferenceId="canCreateAccount" />
-        <OutputClaim ClaimTypeReferenceId="portalType" />
-        <OutputClaim ClaimTypeReferenceId="migrationRequired" />
-        <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
-        <OutputClaim ClaimTypeReferenceId="accountType" />
-        <OutputClaim ClaimTypeReferenceId="isCorrectAccountType" />
-        <!-- <OutputClaim ClaimTypeReferenceId="relyingPartyAccountType" /> -->
-        <!-- <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
-        <OutputClaim ClaimTypeReferenceId="migrationRequired" />
-        <OutputClaim ClaimTypeReferenceId="displayName" />
-        <OutputClaim ClaimTypeReferenceId="otherMails" />
-        <OutputClaim ClaimTypeReferenceId="givenName" />
-        <OutputClaim ClaimTypeReferenceId="surname" /> -->
-        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+        <!-- <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="userId"/> -->
+        <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name"/>
+        <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="family_name"/>
+        <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="email"/>
+        <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="username"/>
+        <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication"/>
+        <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="salesforce.com" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
       <IncludeTechnicalProfile ReferenceId="SetDefaultVariables" />

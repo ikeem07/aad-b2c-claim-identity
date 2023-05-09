@@ -21,7 +21,7 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="SetDefaultVariables">
           <DisplayName>Default Variables</DisplayName>
-          <Protocol Name="OpenIdConnect" />
+          <Protocol Name="SAML2" />
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="canCreateAccount" DefaultValue="true" AlwaysUseDefaultValue="true"/>
             <InputClaim ClaimTypeReferenceId="portalType" DefaultValue="Salesforce" AlwaysUseDefaultValue="true"/>

@@ -10,9 +10,15 @@
 
   <BasePolicy>
     <TenantId>your-qa-tenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_{Settings:TrustFrameworkConnectedAppsPolicyId}</PolicyId>
+    <PolicyId>B2C_1A_{Settings:TrustFrameworkSalesforcePolicyId}</PolicyId>
   </BasePolicy>
-
+  <UserJourneys>
+    <UserJourney Id="SignUpSignInOrClaim">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="Saml2AssertionIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SignUpSignInOrClaim" />
     <UserJourneyBehaviors>

@@ -10,9 +10,15 @@
 
   <BasePolicy>
     <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKCONNECTEDAPPS</PolicyId>
+    <PolicyId>B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKSALESFORCE</PolicyId>
   </BasePolicy>
-
+  <UserJourneys>
+    <UserJourney Id="SignUpSignInOrClaim">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="Saml2AssertionIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SignUpSignInOrClaim" />
     <UserJourneyBehaviors>

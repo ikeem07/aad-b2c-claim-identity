@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0" 
+  TenantId="ecfmgexternaldev.onmicrosoft.com" 
+  PolicyId="B2C_1A_{Settings:TrustFrameworkSalesforcePolicyId}" 
+  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_{Settings:TrustFrameworkSalesforcePolicyId}">
+  
+  <BasePolicy>
+    <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_EMT_IDENTITY-TRUSTFRAMEWORKEXTENSIONS</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    
+  </BuildingBlocks>
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>Set Default Variable</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SetDefaultVariables">
+          <DisplayName>Default Variables</DisplayName>
+          <Protocol Name="OpenIdConnect" />
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="canCreateAccount" DefaultValue="true" AlwaysUseDefaultValue="true"/>
+            <InputClaim ClaimTypeReferenceId="portalType" DefaultValue="Salesforce" AlwaysUseDefaultValue="true"/>
+          </InputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+</TrustFrameworkPolicy>

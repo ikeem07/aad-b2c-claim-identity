@@ -5,12 +5,12 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0" 
   TenantId="ecfmgexternaldev.onmicrosoft.com" 
-  PolicyId="B2C_1A_EMT-IDENTITY-TRUSTFRAMEWORKCONNECTEDAPPS" 
-  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_EMT-IDENTITY-TRUSTFRAMEWORKCONNECTEDAPPS">
+  PolicyId="B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKCONNECTEDAPPS" 
+  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKCONNECTEDAPPS">
   
   <BasePolicy>
     <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_EMT_IDENTITY-TRUSTFRAMEWORKEXTENSIONS</PolicyId>
+    <PolicyId>B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKEXTENSIONS</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
     
@@ -23,7 +23,7 @@
           <DisplayName>Default Variables</DisplayName>
           <Protocol Name="OpenIdConnect" />
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="canCreateAccount" DefaultValue="false" AlwaysUseDefaultValue="true"/>
+            <InputClaim ClaimTypeReferenceId="canCreateAccount" DefaultValue="true" AlwaysUseDefaultValue="true"/>
             <InputClaim ClaimTypeReferenceId="portalType" DefaultValue="ConnectedApp" AlwaysUseDefaultValue="true"/>
           </InputClaims>
         </TechnicalProfile>

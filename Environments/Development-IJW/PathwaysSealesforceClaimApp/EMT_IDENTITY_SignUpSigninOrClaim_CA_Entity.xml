@@ -5,12 +5,12 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="ecfmgexternaldev.onmicrosoft.com"
-  PolicyId="B2C_1A_IJW-IDENTITY-signup_signin_claim_ca_entity"
-  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_IJW-IDENTITY-signup_signin_claim_ca_entity">
+  PolicyId="B2C_1A_EMT-IDENTITY-signup_signin_claim_ca_entity"
+  PublicPolicyUri="http://ecfmgexternaldev.onmicrosoft.com/B2C_1A_EMT-IDENTITY-signup_signin_claim_ca_entity">
 
   <BasePolicy>
     <TenantId>ecfmgexternaldev.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_EMT-IDENTITY-TRUSTFRAMEWORKCONNECTEDAPPS</PolicyId>
+    <PolicyId>B2C_1A_IJW-IDENTITY-TRUSTFRAMEWORKCONNECTEDAPPS</PolicyId>
   </BasePolicy>
 
   <RelyingParty>
@@ -48,4 +48,3 @@
     </TechnicalProfile>
   </RelyingParty>
 </TrustFrameworkPolicy>
-

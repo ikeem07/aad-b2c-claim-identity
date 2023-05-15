@@ -20,6 +20,13 @@
         <AdminHelpText>Admin help text for migrationRequired</AdminHelpText>
         <UserHelpText>User help text for migrationRequired</UserHelpText>
       </ClaimType>
+
+      <ClaimType Id="data">
+        <DisplayName>Data</DisplayName>
+        <DataType>string</DataType>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>
+      
       <ClaimType Id="claimAccountObjectId">
         <DisplayName>User's Object ID</DisplayName>
         <DataType>string</DataType>
@@ -548,6 +555,47 @@
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
         </TechnicalProfile>
 
+        <!--Call
+        API to associat4e JSON Payload-->
+        <TechnicalProfile Id="AttachJSONPayload">
+          <DisplayName>API to return Gender based on name</DisplayName>
+          <Protocol Name="Proprietary"
+            Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://woman-sheet-induced-corn.trycloudflare.com</Item>
+            <Item Key="AuthenticationType">None</Item>
+            <Item Key="SendClaimsIn">QueryString</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="name" />
+            <InputClaim ClaimTypeReferenceId="portalType" DefaultValue="ConnectedApp"
+              AlwaysUseDefaultValue="true" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="data" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+
+        <!--Result
+        technical profile-->
+        <!-- <TechnicalProfile Id="ResultTechnicalProfile">
+          <DisplayName>Unit test</DisplayName>
+          <Protocol Name="Proprietary"
+            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="data" />
+          </InputClaims>
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="data" />
+          </DisplayClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile> -->
+
       </TechnicalProfiles>
     </ClaimsProvider>
   </ClaimsProviders>
@@ -642,7 +690,7 @@
         </OrchestrationStep>
 
         <!-- Compare the accountTypes from User and RelyingParty: returns boolean -->
-         <OrchestrationStep Order="6" Type="ClaimsExchange">
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -727,7 +775,23 @@
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <OrchestrationStep Order="10" Type="SendClaims"
+        <!-- associate json payload -->
+        <OrchestrationStep Order="10" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AttachJSONPayloadExchange"
+              TechnicalProfileReferenceId="AttachJSONPayload" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- display json payload -->
+        <!-- <OrchestrationStep Order="11" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="ResultTechnicalProfileExchange"
+              TechnicalProfileReferenceId="ResultTechnicalProfile" />
+          </ClaimsExchanges>
+        </OrchestrationStep> -->
+
+        <OrchestrationStep Order="11" Type="SendClaims"
           CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>

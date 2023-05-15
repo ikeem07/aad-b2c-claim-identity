@@ -34,6 +34,7 @@
         <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
         <OutputClaim ClaimTypeReferenceId="accountType" />
         <OutputClaim ClaimTypeReferenceId="isCorrectAccountType" />
+        <OutputClaim ClaimTypeReferenceId="data"/>
         <!-- <OutputClaim ClaimTypeReferenceId="relyingPartyAccountType" /> -->
         <!-- <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
         <OutputClaim ClaimTypeReferenceId="migrationRequired" />

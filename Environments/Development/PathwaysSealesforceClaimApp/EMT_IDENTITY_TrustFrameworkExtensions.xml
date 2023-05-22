@@ -26,7 +26,13 @@
         <DataType>string</DataType>
         <UserInputType>Readonly</UserInputType>
       </ClaimType>
-      
+
+      <ClaimType Id="isForgotPassword">
+        <DisplayName>isForgotPassword</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>Whether the user has selected Forgot your Password</AdminHelpText>
+      </ClaimType>
+
       <ClaimType Id="claimAccountObjectId">
         <DisplayName>User's Object ID</DisplayName>
         <DataType>string</DataType>
@@ -558,11 +564,11 @@
         <!--Call
         API to associat4e JSON Payload-->
         <TechnicalProfile Id="AttachJSONPayload">
-          <DisplayName>API to return Gender based on name</DisplayName>
+          <DisplayName>API to attach json payload</DisplayName>
           <Protocol Name="Proprietary"
             Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://woman-sheet-induced-corn.trycloudflare.com</Item>
+            <Item Key="ServiceUrl">https://bite-iv-bracelets-road.trycloudflare.com</Item>
             <Item Key="AuthenticationType">None</Item>
             <Item Key="SendClaimsIn">QueryString</Item>
             <Item Key="AllowInsecureAuthInProduction">true</Item>
@@ -578,23 +584,25 @@
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
 
-        <!--Result
-        technical profile-->
-        <!-- <TechnicalProfile Id="ResultTechnicalProfile">
-          <DisplayName>Unit test</DisplayName>
+        <TechnicalProfile Id="ForgotPassword">
+          <DisplayName>Forgot your password?</DisplayName>
           <Protocol Name="Proprietary"
-            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="data" />
-          </InputClaims>
-          <DisplayClaims>
-            <DisplayClaim ClaimTypeReferenceId="data" />
-          </DisplayClaims>
+            Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="isForgotPassword" DefaultValue="true"
+              AlwaysUseDefaultValue="true" />
+          </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-        </TechnicalProfile> -->
+        </TechnicalProfile>
+        <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
+          <Metadata>
+            <Item Key="setting.forgotPasswordLinkOverride">ForgotPasswordExchange</Item>
+            <Item Key="SignUpTarget">EmailValidationExchange</Item>
+          </Metadata>
+        </TechnicalProfile>
+        <TechnicalProfile Id="LocalAccountWritePasswordUsingObjectId">
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
+        </TechnicalProfile>
 
       </TechnicalProfiles>
     </ClaimsProvider>
@@ -607,6 +615,7 @@
           ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
             <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="ForgotPasswordExchange" />
           </ClaimsProviderSelections>
           <ClaimsExchanges>
             <ClaimsExchange Id="LocalAccountSigninEmailExchange"
@@ -625,11 +634,25 @@
           <ClaimsExchanges>
             <ClaimsExchange Id="EmailValidationExchange"
               TechnicalProfileReferenceId="SelfAsserted-EmailValidation" />
+            <ClaimsExchange Id="ForgotPasswordExchange" TechnicalProfileReferenceId="ForgotPassword" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
+        <!-- Reset password -->
+        <OrchestrationStep Order="3" Type="InvokeSubJourney">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+              <Value>isForgotPassword</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <JourneyList>
+            <Candidate SubJourneyReferenceId="PasswordReset" />
+          </JourneyList>
+        </OrchestrationStep>
+
         <!-- Get user info by email -->
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -644,7 +667,7 @@
 
         <!-- There is no account to migrate -->
         <!-- User cannot create a new account if portalType is ConnectedApp -->
-        <OrchestrationStep Order="4" Type="ClaimsExchange">
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -667,7 +690,7 @@
         </OrchestrationStep>
 
         <!-- Error message for account claimed already -->
-        <OrchestrationStep Order="5" Type="ClaimsExchange">
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -690,7 +713,7 @@
         </OrchestrationStep>
 
         <!-- Compare the accountTypes from User and RelyingParty: returns boolean -->
-        <OrchestrationStep Order="6" Type="ClaimsExchange">
+        <OrchestrationStep Order="7" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -708,7 +731,7 @@
         </OrchestrationStep>
 
         <!-- Error message for wrong portal -->
-        <OrchestrationStep Order="7" Type="ClaimsExchange">
+        <OrchestrationStep Order="8" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -731,7 +754,7 @@
         </OrchestrationStep>
 
         <!-- Migrate the user via subjourney -->
-        <OrchestrationStep Order="8" Type="InvokeSubJourney">
+        <OrchestrationStep Order="9" Type="InvokeSubJourney">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -753,7 +776,7 @@
         </OrchestrationStep>
 
         <!-- Create account -->
-        <OrchestrationStep Order="9" Type="ClaimsExchange">
+        <OrchestrationStep Order="10" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -776,22 +799,20 @@
         </OrchestrationStep>
 
         <!-- associate json payload -->
-        <OrchestrationStep Order="10" Type="ClaimsExchange">
+        <OrchestrationStep Order="11" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>isForgotPassword</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="AttachJSONPayloadExchange"
               TechnicalProfileReferenceId="AttachJSONPayload" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <!-- display json payload -->
-        <!-- <OrchestrationStep Order="11" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="ResultTechnicalProfileExchange"
-              TechnicalProfileReferenceId="ResultTechnicalProfile" />
-          </ClaimsExchanges>
-        </OrchestrationStep> -->
-
-        <OrchestrationStep Order="11" Type="SendClaims"
+        <OrchestrationStep Order="12" Type="SendClaims"
           CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
@@ -820,6 +841,27 @@
           CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </SubJourney>
+
+    <SubJourney Id="PasswordReset" Type="Call">
+      <OrchestrationSteps>
+        <!-- Validate user's email address. -->
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange"
+              TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddress" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Collect and persist a new password. -->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="NewCredentials"
+              TechnicalProfileReferenceId="LocalAccountWritePasswordUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+      </OrchestrationSteps>
+    </SubJourney>
+
   </SubJourneys>
 
 </TrustFrameworkPolicy>

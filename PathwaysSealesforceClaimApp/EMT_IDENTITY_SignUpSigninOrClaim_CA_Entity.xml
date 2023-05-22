@@ -35,6 +35,7 @@
         <OutputClaim ClaimTypeReferenceId="accountType" />
         <OutputClaim ClaimTypeReferenceId="isCorrectAccountType" />
         <OutputClaim ClaimTypeReferenceId="data"/>
+        <OutputClaim ClaimTypeReferenceId="isForgotPassword" DefaultValue="false" />
         <!-- <OutputClaim ClaimTypeReferenceId="relyingPartyAccountType" /> -->
         <!-- <OutputClaim ClaimTypeReferenceId="claimAccountObjectId" />
         <OutputClaim ClaimTypeReferenceId="migrationRequired" />
